@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Bebidas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .form-container input, .form-container select, .form-container button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-container button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .delete-btn, .edit-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        .delete-btn:hover {
+            background-color: darkred;
+        }
+        .edit-btn {
+            background-color: orange;
+        }
+        .edit-btn:hover {
+            background-color: darkorange;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gestão de Bebidas</h1>
+
+    <div class="form-container">
+        <h2>Cadastrar ou Editar Bebida</h2>
+        <form id="bebidaForm">
+            <input type="hidden" id="bebidaId"> <!-- Campo escondido para o id da bebida (usado para edição) -->
+            <label for="nome">Nome da Bebida:</label>
+            <input type="text" id="nome" name="nome" required>
+
+            <label for="tipo">Tipo:</label>
+            <select id="tipo" name="tipo" required>
+                <option value="">Selecione o tipo</option>
+                <option value="Refrigerante">Refrigerante</option>
+                <option value="Suco">Suco</option>
+                <option value="Água">Água</option>
+                <option value="Álcool">Álcool</option>
+            </select>
+
+            <label for="quantidade">Quantidade (em ml):</label>
+            <input type="number" id="quantidade" name="quantidade" required>
+
+            <label for="preco">Preço (R$):</label>
+            <input type="number" id="preco" name="preco" step="0.01" required>
+
+            <button type="submit">Cadastrar ou Atualizar Bebida</button>
+        </form>
+    </div>
+
+    <div class="form-container">
+        <h2>Bebidas Cadastradas</h2>
+        <table id="bebidasTable">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Tipo</th>
+                    <th>Quantidade (ml)</th>
+                    <th>Preço (R$)</th>
+                    <th>Ação</th> <!-- Coluna para os botões de editar e excluir -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- As bebidas cadastradas serão exibidas aqui -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let editingRow = null; // Variável para armazenar a linha que está sendo editada
+
+        document.getElementById('bebidaForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Captura os dados do formulário
+            const nome = document.getElementById('nome').value;
+            const tipo = document.getElementById('tipo').value;
+            const quantidade = document.getElementById('quantidade').value;
+            const preco = document.getElementById('preco').value;
+            const bebidaId = document.getElementById('bebidaId').value;
+
+            const table = document.getElementById('bebidasTable').getElementsByTagName('tbody')[0];
+
+            if (editingRow) {
+                // Se estivermos editando uma bebida existente
+                editingRow.cells[0].textContent = nome; // Atualiza o nome
+                editingRow.cells[1].textContent = tipo; // Atualiza o tipo
+                editingRow.cells[2].textContent = quantidade; // Atualiza a quantidade
+                editingRow.cells[3].textContent = preco; // Atualiza o preço
+                editingRow = null; // Limpa a linha de edição após atualizar
+            } else {
+                // Se não estivermos editando, adiciona uma nova linha
+                const newRow = table.insertRow();
+                const cell1 = newRow.insertCell(0);
+                const cell2 = newRow.insertCell(1);
+                const cell3 = newRow.insertCell(2);
+                const cell4 = newRow.insertCell(3);
+                const cell5 = newRow.insertCell(4); // Coluna para os botões de editar e excluir
+
+                cell1.textContent = nome;
+                cell2.textContent = tipo;
+                cell3.textContent = quantidade;
+                cell4.textContent = preco;
+
+                // Botão de editar
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Editar';
+                editBtn.className = 'edit-btn';
+                editBtn.onclick = function() {
+                    // Preenche o formulário com os dados da bebida para edição
+                    document.getElementById('nome').value = nome;
+                    document.getElementById('tipo').value = tipo;
+                    document.getElementById('quantidade').value = quantidade;
+                    document.getElementById('preco').value = preco;
+                    document.getElementById('bebidaId').value = bebidaId; // Atribui o ID da bebida
+
+                    // Marca a linha que está sendo editada
+                    editingRow = newRow;
+                };
+
+                // Botão de excluir
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Excluir';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = function() {
+                    // Remove a linha da tabela
+                    table.deleteRow(newRow.rowIndex - 1); // Subtrai 1 porque a primeira linha é o cabeçalho
+                };
+
+                cell5.appendChild(editBtn);
+                cell5.appendChild(deleteBtn);
+            }
+
+            // Limpa o formulário após a ação
+            document.getElementById('bebidaForm').reset();
+            document.getElementById('bebidaId').value = ''; // Limpa o campo oculto de ID
+        });
+    </script>
+
+</body>
+</html>
